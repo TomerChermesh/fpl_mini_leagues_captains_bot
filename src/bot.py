@@ -110,8 +110,3 @@ class Bot:
                                  text=messages.get_data_dict_as_message(self.selected_league, action,
                                                                         self.selected_gameweek, data_dict))
         self.show_return_to_menus_menu(update, context)
-
-
-if __name__ == '__main__':
-    bot = Bot()
-    bot.run()
