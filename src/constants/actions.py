@@ -24,7 +24,7 @@ def all_valid_string_messages(user_leagues_names: list[str]) -> list[str]:
 
 
 def get_all_relevant_gameweeks_names() -> list[str]:
-    return [f'GW{gw_num + 1}' for gw_num in range(CURRENT_GAMEWEEK)]
+    return [f'GW{gw_num}' for gw_num in range(CURRENT_GAMEWEEK, 0, -1)]
 
 
 def get_all_return_to_menus() -> list[str]:
