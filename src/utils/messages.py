@@ -9,7 +9,7 @@ ENTER_TEAM_ID: Final[str] = "Now, please enter you FPL team ID 🙏🏼"
 GOODBYE: Final[str] = "Thank you! Hope to see you next time 👋🏼"
 INVALID_ANSWER: Final[str] = "Invalid answer 😣"
 RETURN_TO_MENUS: Final[str] = "Please select a menu to return to or exit 🙏🏼"
-SELECT_GAMEWEEK: Final[str] = "Please select a gameweek to get info about it 🙏🏼"
+SELECT_GAMEWEEK: Final[str] = "Please select a gameweek to get info about 🙏🏼"
 SELECT_ACTION: Final[str] = "Please select one of the following actions 🙏🏼"
 
 
