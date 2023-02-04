@@ -1,6 +1,6 @@
 from typing import Union
 
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, ParseMode, InlineKeyboardButton, ReplyMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 
 from config import get_config
@@ -12,8 +12,8 @@ from src.utils.custom_exceptions import InvalidUserID
 
 
 class Bot:
-    user_private_leagues_names: list[str]
-    relevant_gameweeks: list[str]
+    user_private_leagues_names: list[str] = []
+    relevant_gameweeks: list[str] = []
     selected_league: str
     selected_gameweek: str
 
@@ -29,14 +29,27 @@ class Bot:
         self.last_message: str = ''
         self.last_buttons: list[list[str]] = []
 
-    def run(self):
-        print('Bot is now running...')
-        self.updater.start_polling()
-
     @staticmethod
     def start_command(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=messages.get_start_message())
+                                 text=messages.get_start_message(),
+                                 parse_mode=ParseMode.MARKDOWN)
+
+    @staticmethod
+    def exit(update: Update, context: CallbackContext) -> None:
+        print('Bot exited.')
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=messages.GOODBYE)
+
+    @staticmethod
+    def show_invalid_user_id_message(update: Update, context: CallbackContext, error_message: str) -> None:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=messages.get_invalid_message_with_last_message(
+                                     messages.ENTER_TEAM_ID, str(error_message)))
+
+    def run(self):
+        print('Bot is now running...')
+        self.updater.start_polling()
 
     def message_handler(self, update: Update, context: CallbackContext) -> None:
         answer: str = update.message.text
@@ -44,18 +57,15 @@ class Bot:
             try:
                 self.fpl.login(answer)
             except InvalidUserID as user_id_err:
-                context.bot.send_message(chat_id=update.effective_chat.id,
-                                         text=messages.get_invalid_message_with_last_message(
-                                             messages.ENTER_TEAM_ID, str(user_id_err)))
-            else:
-                self.show_leagues_menu(update, context)
+                self.show_invalid_user_id_message(update, context, str(user_id_err))
+            self.show_leagues_menu(update, context)
         else:
-            if answer in self.user_private_leagues_names:
+            if self.user_private_leagues_names and answer in self.user_private_leagues_names:
                 self.selected_league = answer
                 self.show_gameweeks_menu(update, context)
             elif answer == actions.GAMEWEEK_SELECTION:
                 self.show_gameweeks_menu(update, context)
-            elif answer in self.relevant_gameweeks:
+            elif self.relevant_gameweeks and answer in self.relevant_gameweeks:
                 self.selected_gameweek = answer
                 self.show_actions_menu(update, context)
             elif answer in actions.MAIN_ACTIONS:
@@ -65,8 +75,7 @@ class Bot:
             elif answer == actions.LEAGUE_SELECTION:
                 self.show_leagues_menu(update, context)
             elif answer == 'Exit':
-                print('Bot exited.')
-                context.bot.close()
+                self.exit(update, context)
             else:
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=messages.get_invalid_message_with_last_message(self.last_message))
@@ -108,5 +117,6 @@ class Bot:
                                                                                      action_lower)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=messages.get_data_dict_as_message(self.selected_league, action,
-                                                                        self.selected_gameweek, data_dict))
+                                                                        self.selected_gameweek, data_dict),
+                                 parse_mode=ParseMode.MARKDOWN)
         self.show_return_to_menus_menu(update, context)
