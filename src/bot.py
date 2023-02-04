@@ -1,6 +1,6 @@
-from typing import Union
+from typing import Union, Optional
 
-from telegram import Update, ReplyKeyboardMarkup, ParseMode, InlineKeyboardButton, ReplyMarkup, KeyboardButton
+from telegram import Update, ReplyKeyboardMarkup, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 
 from config import get_config
@@ -38,8 +38,10 @@ class Bot:
     @staticmethod
     def exit(update: Update, context: CallbackContext) -> None:
         print('Bot exited.')
+        start_button: list[str] = [actions.START]
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=messages.GOODBYE)
+                                 text=messages.GOODBYE,
+                                 reply_markup=ReplyKeyboardMarkup(start_button))
 
     @staticmethod
     def show_invalid_user_id_message(update: Update, context: CallbackContext, error_message: str) -> None:
@@ -60,25 +62,28 @@ class Bot:
                 self.show_invalid_user_id_message(update, context, str(user_id_err))
             self.show_leagues_menu(update, context)
         else:
-            if self.user_private_leagues_names and answer in self.user_private_leagues_names:
-                self.selected_league = answer
-                self.show_gameweeks_menu(update, context)
-            elif answer == actions.GAMEWEEK_SELECTION:
-                self.show_gameweeks_menu(update, context)
-            elif self.relevant_gameweeks and answer in self.relevant_gameweeks:
-                self.selected_gameweek = answer
-                self.show_actions_menu(update, context)
-            elif answer in actions.MAIN_ACTIONS:
-                self.do_action(update, context, answer)
-            elif answer == actions.ACTION_SELECTION:
-                self.show_actions_menu(update, context)
-            elif answer == actions.LEAGUE_SELECTION:
-                self.show_leagues_menu(update, context)
-            elif answer == 'Exit':
-                self.exit(update, context)
-            else:
-                context.bot.send_message(chat_id=update.effective_chat.id,
-                                         text=messages.get_invalid_message_with_last_message(self.last_message))
+            self.handle_non_integer_answer(update, context, answer)
+
+    def handle_non_integer_answer(self, update: Update, context: CallbackContext, answer: str) -> None:
+        if answer == actions.START:
+            self.start_command(update, context)
+        elif self.user_private_leagues_names and answer in self.user_private_leagues_names:
+            self.show_gameweeks_menu(update, context, answer)
+        elif answer == actions.GAMEWEEK_SELECTION:
+            self.show_gameweeks_menu(update, context)
+        elif self.relevant_gameweeks and answer in self.relevant_gameweeks:
+            self.show_actions_menu(update, context, answer)
+        elif answer == actions.ACTION_SELECTION:
+            self.show_actions_menu(update, context)
+        elif answer in actions.MAIN_ACTIONS:
+            self.do_action(update, context, answer)
+        elif answer == actions.LEAGUE_SELECTION:
+            self.show_leagues_menu(update, context)
+        elif answer == actions.Exit:
+            self.exit(update, context)
+        else:
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text=messages.get_invalid_message_with_last_message(self.last_message))
 
     def show_leagues_menu(self, update: Update, context: CallbackContext) -> None:
         self.relevant_gameweeks = actions.get_all_relevant_gameweeks_names()
@@ -89,14 +94,20 @@ class Bot:
                                  text=self.last_message,
                                  reply_markup=ReplyKeyboardMarkup(self.last_buttons))
 
-    def show_gameweeks_menu(self, update: Update, context: CallbackContext) -> None:
+    def show_gameweeks_menu(self, update: Update, context: CallbackContext,
+                            selected_league: Optional[str] = None) -> None:
+        if selected_league:
+            self.selected_league = selected_league
         self.last_message = messages.SELECT_GAMEWEEK
         self.last_buttons = create_buttons_list(self.relevant_gameweeks)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=self.last_message,
                                  reply_markup=ReplyKeyboardMarkup(self.last_buttons))
 
-    def show_actions_menu(self, update: Update, context: CallbackContext) -> None:
+    def show_actions_menu(self, update: Update, context: CallbackContext,
+                          selected_gameweek: Optional[str] = None) -> None:
+        if selected_gameweek:
+            self.selected_gameweek = selected_gameweek
         self.last_message = messages.SELECT_ACTION
         self.last_buttons = create_buttons_list(actions.MAIN_ACTIONS)
         context.bot.send_message(chat_id=update.effective_chat.id,
