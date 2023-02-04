@@ -1,6 +1,7 @@
 from typing import Final
 
-
+EXIT: Final[str] = 'Exit'
+START: Final[str] = 'Start'
 ACTION_SELECTION: Final[str] = 'Action Selection'
 GAMEWEEK_SELECTION: Final[str] = 'Gameweek Selection'
 LEAGUE_SELECTION: Final[str] = 'League Selection'

@@ -79,7 +79,7 @@ class Bot:
             self.do_action(update, context, answer)
         elif answer == actions.LEAGUE_SELECTION:
             self.show_leagues_menu(update, context)
-        elif answer == actions.Exit:
+        elif answer == actions.EXIT:
             self.exit(update, context)
         else:
             context.bot.send_message(chat_id=update.effective_chat.id,
