@@ -38,7 +38,7 @@ class Bot:
     @staticmethod
     def exit(update: Update, context: CallbackContext) -> None:
         print('Bot exited.')
-        start_button: list[str] = [actions.START]
+        start_button: list[str] = create_buttons_list([actions.START])
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=messages.GOODBYE,
                                  reply_markup=ReplyKeyboardMarkup(start_button))
