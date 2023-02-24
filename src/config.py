@@ -8,6 +8,7 @@ from pydantic import BaseSettings
 class Config(BaseSettings):
     telegram_bot_token: str
     port: int
+    current_gameweek: int
 
     class Config:
 
@@ -15,6 +16,7 @@ class Config(BaseSettings):
 
         telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
         port = os.environ.get('PORT')
+        current_gameweek = os.environ.get('CURRENT_GAMEWEEK')
 
 
 @lru_cache()
