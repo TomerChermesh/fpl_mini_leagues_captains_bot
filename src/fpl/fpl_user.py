@@ -12,6 +12,7 @@ class FPLUser:
         self.user_overall_pts = np.nan
         self.user_overall_rank = np.nan
         self.user_leagues = []
+        self.current_gameweek: int = np.nan
         try:
             self.login(manager_id)
         except Exception:
@@ -25,3 +26,4 @@ class FPLUser:
         self.user_overall_pts = data['summary_overall_points']
         self.user_overall_rank = data['summary_overall_rank']
         self.user_leagues = data['leagues']['classic']
+        self.current_gameweek = data['current_event']

@@ -20,14 +20,8 @@ def get_menus_with_exit() -> list[str]:
     return menus_with_exit
 
 
-def all_valid_string_messages(user_leagues_names: list[str]) -> list[str]:
-    all_return_to_menus: list[str] = get_all_return_to_menus()
-    gameweeks: list[str] = get_all_relevant_gameweeks_names()
-    return user_leagues_names + MAIN_ACTIONS + gameweeks + all_return_to_menus
-
-
-def get_all_relevant_gameweeks_names() -> list[str]:
-    return [f'GW{gw_num}' for gw_num in range(config.current_gameweek, 0, -1)]
+def get_all_relevant_gameweeks_names(current_gameweek: int) -> list[str]:
+    return [f'GW{gw_num}' for gw_num in range(current_gameweek, 0, -1)]
 
 
 def get_all_return_to_menus() -> list[str]:

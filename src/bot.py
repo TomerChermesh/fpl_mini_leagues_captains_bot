@@ -22,8 +22,7 @@ class Bot:
         self.updater = Updater(token=self.config.telegram_bot_token)
         self.dispatcher = self.updater.dispatcher
         self.fpl: FPLMain = FPLMain()
-
-        self.relevant_gameweeks: list[str] = actions.get_all_relevant_gameweeks_names()
+        self.relevant_gameweeks: list[str] = []
         self.dispatcher.add_handler(CommandHandler("start", self.start_command))
         self.dispatcher.add_handler(MessageHandler(Filters.text, self.message_handler))
         self.last_message: str = ''
@@ -86,7 +85,6 @@ class Bot:
                                      text=messages.get_invalid_message_with_last_message(self.last_message))
 
     def show_leagues_menu(self, update: Update, context: CallbackContext) -> None:
-        self.relevant_gameweeks = actions.get_all_relevant_gameweeks_names()
         self.user_private_leagues_names = self.fpl.get_user_private_leagues_names()
         self.last_message = messages.get_after_login_message(self.fpl.username)
         self.last_buttons = create_buttons_list(self.user_private_leagues_names)
@@ -99,6 +97,8 @@ class Bot:
         if selected_league:
             self.selected_league = selected_league
         self.last_message = messages.SELECT_GAMEWEEK
+        current_gameweek: int = self.fpl.get_current_gameweek()
+        self.relevant_gameweeks = actions.get_all_relevant_gameweeks_names(current_gameweek)
         self.last_buttons = create_buttons_list(self.relevant_gameweeks)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=self.last_message,

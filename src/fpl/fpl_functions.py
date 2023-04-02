@@ -1,6 +1,6 @@
 import json
 import threading
-from typing import Union
+from typing import Union, Any
 from urllib import request
 
 from src.fpl.fpl_user import FPLUser
@@ -36,7 +36,7 @@ class FPLFunctions:
         else:
             return cls._instance
 
-    def connect(self, manager_id):
+    def connect(self, manager_id) -> None:
         try:
             self.logged_in_user = FPLUser(manager_id)
             self.user_leagues_dict = self.logged_in_user.user_leagues[4:]
@@ -44,33 +44,33 @@ class FPLFunctions:
             raise IOError(str(ex))
 
     @staticmethod
-    def get_player_first_name(player) -> str:
+    def get_player_first_name(player: dict[str, Any]) -> str:
         player_first_name = player["first_name"]
         return player_first_name
 
     @staticmethod
-    def get_player_last_name(player) -> str:
+    def get_player_last_name(player: dict[str, Any]) -> str:
         player_last_name = player["second_name"]
         return player_last_name
 
     @staticmethod
-    def get_league(league_id: int):
+    def get_league(league_id: int) -> dict[str, Any]:
         url = f'https://fantasy.premierleague.com/api/leagues-classic/{league_id}/standings'
         page = request.urlopen(url)
         return json.load(page)
 
     @staticmethod
-    def get_fpl_team_picks_by_gw(team_id: int, gw_number: int):
+    def get_fpl_team_picks_by_gw(team_id: int, gw_number: int) -> dict[str, Any]:
         url = f'https://fantasy.premierleague.com/api/entry/{team_id}/event/{gw_number}/picks/'
         page = request.urlopen(url)
         return json.load(page)
 
-    def get_player(self, player_id):
+    def get_player(self, player_id) -> dict[str, Any]:
         for player in self.elements:
             if player["id"] == player_id:
                 return player
 
-    def get_fpl_team_captain(self, team_id, gw_number) -> str:
+    def get_fpl_team_captain(self, team_id: int, gw_number: int) -> str:
         gw_team_data = {}
         captain_name: str = ''
         vice_captain_name: str = ''
@@ -133,11 +133,15 @@ class FPLFunctions:
         else:
             self.captains[captain] += 1
 
-    def count_chips(self, chip):
+    def count_chips(self, chip: str) -> None:
         if chip not in self.chips:
             self.chips[chip] = 1
         else:
             self.chips[chip] += 1
 
-    def get_manager_info(self):
+    def get_manager_info(self) -> FPLUser:
         return self.logged_in_user
+
+    def get_current_gameweek(self) -> int:
+        user: FPLUser = self.get_manager_info()
+        return user.current_gameweek

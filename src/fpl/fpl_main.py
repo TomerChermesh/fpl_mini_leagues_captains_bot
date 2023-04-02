@@ -18,10 +18,13 @@ class FPLMain:
     def get_user_private_leagues_names(self) -> list[str]:
         return [league['name'] for league in self.fpl_functions.user_leagues_dict]
 
+    def get_current_gameweek(self) -> int:
+        return self.fpl_functions.get_current_gameweek()
+
     def get_league_data_by_function(self, league_name: str, selected_gameweek: str,
                                     action: str) -> dict[str, Union[str, int]]:
-        action_subject: str = action.split(' ')[1]
+        action_subject: str = action.replace(' ', '_')
         gameweek_number: int = int(selected_gameweek[2:])
-        action_to_do = getattr(self.fpl_functions, f'get_{action_subject}')
+        action_to_do = getattr(self.fpl_functions, action_subject)
         data_dict: dict[str, Union[str, int]] = action_to_do(league_name, gameweek_number)
         return data_dict
