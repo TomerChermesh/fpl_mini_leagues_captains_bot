@@ -13,7 +13,7 @@ class FPLMain:
 
     def login(self, manager_id: str) -> None:
         self.fpl_functions.connect(manager_id)
-        self.username = self.fpl_functions.logged_in_user.user_fullname
+        self.username = self.fpl_functions.logged_in_user.fullname
 
     def get_user_private_leagues_names(self) -> list[str]:
         return [league['name'] for league in self.fpl_functions.user_leagues_dict]
