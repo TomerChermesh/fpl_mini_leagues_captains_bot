@@ -9,7 +9,7 @@ START: Final[str] = 'Start'
 ACTION_SELECTION: Final[str] = 'Action Selection'
 GAMEWEEK_SELECTION: Final[str] = 'Gameweek Selection'
 LEAGUE_SELECTION: Final[str] = 'League Selection'
-MAIN_ACTIONS: Final[list[str]] = ['Get Captains', 'Get Chips']
+MAIN_ACTIONS: Final[list[str]] = ['Get Captains', 'Get Chips', 'Get Gameweek Winners']
 
 MENUS: Final[list[str]] = [ACTION_SELECTION, GAMEWEEK_SELECTION, LEAGUE_SELECTION]
 

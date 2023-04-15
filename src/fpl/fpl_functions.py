@@ -11,8 +11,9 @@ class FPLFunctions:
     _lock: threading.Lock = threading.Lock()
     logged_in_user: FPLUser
     elements: dict
-    captains: dict
-    chips: dict
+    captains: dict[str, int]
+    chips: dict[str, int]
+    scores: dict[str, int]
     user_leagues_dict: dict
 
     def __init__(self):
@@ -65,6 +66,12 @@ class FPLFunctions:
         page = request.urlopen(url)
         return json.load(page)
 
+    @staticmethod
+    def get_fpl_team_history(team_id: int) -> dict[str, Any]:
+        url = f'https://fantasy.premierleague.com/api/entry/{team_id}/history/'
+        page = request.urlopen(url)
+        return json.load(page)
+
     def get_player(self, player_id) -> dict[str, Any]:
         for player in self.elements:
             if player["id"] == player_id:
@@ -111,7 +118,7 @@ class FPLFunctions:
             captain = self.get_fpl_team_captain(team["entry"], gw_number)
             self.count_captain(captain)
 
-        sorted_captains: dict = dict(sorted(self.captains.items(), key=lambda item: item[1], reverse=True))
+        sorted_captains: dict[str, int] = dict(sorted(self.captains.items(), key=lambda item: item[1], reverse=True))
         return sorted_captains
 
     def get_chips(self, league_name: str, gw_number: int) -> dict[str, Union[str, int]]:
@@ -124,10 +131,28 @@ class FPLFunctions:
             if chip:
                 self.count_chips(chip)
 
-        sorted_chips: dict = dict(sorted(self.chips.items(), key=lambda item: item[1], reverse=True))
+        sorted_chips: dict[str, int] = dict(sorted(self.chips.items(), key=lambda item: item[1], reverse=True))
         return sorted_chips
 
-    def count_captain(self, captain):
+    def get_gameweek_winners(self, league_name: str, gw_number: int) -> dict[str, Union[str, int]]:
+        self.scores = {}
+        league_id: int = [league['id'] for league in self.user_leagues_dict if league['name'] == league_name][0]
+        data = self.get_league(league_id)
+
+        for team in data["standings"]["results"]:
+            self.scores[f'{team["entry_name"]} ({team["player_name"]})'] = \
+                self.get_gameweek_points(team['entry'], gw_number)
+
+        sorted_scores: dict[str, int] = dict(sorted(self.scores.items(), key=lambda item: item[1], reverse=True))
+        gw_podium: dict[str, int] = dict(zip(list(sorted_scores.keys())[:3], list(sorted_scores.values())[:3]))
+        return gw_podium
+
+    def get_gameweek_points(self, team_id: int, gw_number: int) -> int:
+        this_season_team_history: list[dict[str, int]] = self.get_fpl_team_history(team_id)['current']
+        gw_points: int = list(filter(lambda x: x['event'] == gw_number, this_season_team_history))[0]['points']
+        return gw_points
+
+    def count_captain(self, captain: str) -> None:
         if captain not in self.captains:
             self.captains[captain] = 1
         else:
