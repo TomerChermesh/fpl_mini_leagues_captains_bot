@@ -39,7 +39,7 @@ class FPLFunctions:
     def connect(self, manager_id) -> None:
         try:
             self.logged_in_user = FPLUser(manager_id)
-            self.user_leagues_dict = self.logged_in_user.user_leagues[4:]
+            self.user_leagues_dict = self.logged_in_user.leagues[4:]
         except IOError as ex:
             raise IOError(str(ex))
 
