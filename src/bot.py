@@ -1,4 +1,3 @@
-import io
 from typing import Union, Optional
 
 from telegram import Update, ReplyKeyboardMarkup, ParseMode
@@ -10,7 +9,6 @@ from src.constants import actions
 from src.fpl.fpl_main import FPLMain
 from src.utils import messages
 from src.utils.custom_exceptions import InvalidUserID
-from PIL import Image, ImageDraw, ImageFont
 
 
 class Bot:
