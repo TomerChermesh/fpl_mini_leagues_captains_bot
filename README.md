@@ -1,1 +1,1 @@
-# FPLMiniLeaguesCaptains
+# FPLMiniLeaguesBot
