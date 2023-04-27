@@ -133,32 +133,8 @@ class Bot:
         data_dict: dict[str, Union[str, int]] = self.fpl.get_league_data_by_function(self.selected_league,
                                                                                      self.selected_gameweek,
                                                                                      action_lower)
-        text_to_photo: str = messages.get_data_dict_as_message(self.selected_league, action,
-                                                         self.selected_gameweek, data_dict)
-        # photo: io.BytesIO = self.create_photo(text_to_photo)
+        reply_text: str = messages.get_data_dict_as_message(self.selected_league, action,
+                                                            self.selected_gameweek, data_dict)
 
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=text_to_photo,
-                                 parse_mode=ParseMode.MARKDOWN)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=reply_text, parse_mode=ParseMode.MARKDOWN)
         self.show_return_to_menus_menu(update, context)
-
-    @staticmethod
-    def create_photo(text: str):
-        with open('../resources/test.jpg', 'rb') as f:
-            image = Image.open(f)
-            draw = ImageDraw.Draw(image)
-
-        # set the font and text to be drawn
-        font = ImageFont.truetype('../resources/Christmas Cookies.otf', size=36)
-
-        # draw the text on the image
-        text_width, text_height = draw.textsize(text, font)
-        x = (image.width - text_width) // 2
-        y = (image.height - text_height) // 2
-        draw.text((x, y), text, font=font, fill=(255, 255, 255))
-
-        # send the image to the user
-        stream = io.BytesIO()
-        image.save(stream, format='JPEG')
-        stream.seek(0)
-        return stream
