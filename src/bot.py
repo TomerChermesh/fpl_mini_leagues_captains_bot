@@ -1,3 +1,4 @@
+import io
 from typing import Union, Optional
 
 from telegram import Update, ReplyKeyboardMarkup, ParseMode
@@ -9,6 +10,7 @@ from src.constants import actions
 from src.fpl.fpl_main import FPLMain
 from src.utils import messages
 from src.utils.custom_exceptions import InvalidUserID
+from PIL import Image, ImageDraw, ImageFont
 
 
 class Bot:
@@ -40,7 +42,8 @@ class Bot:
         start_button: list[str] = create_buttons_list([actions.START])
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=messages.GOODBYE,
-                                 reply_markup=ReplyKeyboardMarkup(start_button))
+                                 reply_markup=ReplyKeyboardMarkup(start_button, one_time_keyboard=True,
+                                                                  resize_keyboard=True))
 
     @staticmethod
     def show_invalid_user_id_message(update: Update, context: CallbackContext, error_message: str) -> None:
@@ -90,7 +93,8 @@ class Bot:
         self.last_buttons = create_buttons_list(self.user_private_leagues_names)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=self.last_message,
-                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons))
+                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons, one_time_keyboard=True,
+                                                                  resize_keyboard=True))
 
     def show_gameweeks_menu(self, update: Update, context: CallbackContext,
                             selected_league: Optional[str] = None) -> None:
@@ -102,7 +106,8 @@ class Bot:
         self.last_buttons = create_buttons_list(self.relevant_gameweeks)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=self.last_message,
-                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons))
+                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons, one_time_keyboard=True,
+                                                                  resize_keyboard=True))
 
     def show_actions_menu(self, update: Update, context: CallbackContext,
                           selected_gameweek: Optional[str] = None) -> None:
@@ -112,22 +117,48 @@ class Bot:
         self.last_buttons = create_buttons_list(actions.MAIN_ACTIONS)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=self.last_message,
-                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons))
+                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons, one_time_keyboard=True,
+                                                                  resize_keyboard=True))
 
     def show_return_to_menus_menu(self, update: Update, context: CallbackContext) -> None:
         self.last_message = messages.RETURN_TO_MENUS
         self.last_buttons = create_buttons_list(actions.get_all_return_to_menus())
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=self.last_message,
-                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons))
+                                 reply_markup=ReplyKeyboardMarkup(self.last_buttons, one_time_keyboard=True,
+                                                                  resize_keyboard=True))
 
     def do_action(self, update: Update, context: CallbackContext, action: str):
         action_lower: str = action.lower()
         data_dict: dict[str, Union[str, int]] = self.fpl.get_league_data_by_function(self.selected_league,
                                                                                      self.selected_gameweek,
                                                                                      action_lower)
+        text_to_photo: str = messages.get_data_dict_as_message(self.selected_league, action,
+                                                         self.selected_gameweek, data_dict)
+        # photo: io.BytesIO = self.create_photo(text_to_photo)
+
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=messages.get_data_dict_as_message(self.selected_league, action,
-                                                                        self.selected_gameweek, data_dict),
+                                 text=text_to_photo,
                                  parse_mode=ParseMode.MARKDOWN)
         self.show_return_to_menus_menu(update, context)
+
+    @staticmethod
+    def create_photo(text: str):
+        with open('../resources/test.jpg', 'rb') as f:
+            image = Image.open(f)
+            draw = ImageDraw.Draw(image)
+
+        # set the font and text to be drawn
+        font = ImageFont.truetype('../resources/Christmas Cookies.otf', size=36)
+
+        # draw the text on the image
+        text_width, text_height = draw.textsize(text, font)
+        x = (image.width - text_width) // 2
+        y = (image.height - text_height) // 2
+        draw.text((x, y), text, font=font, fill=(255, 255, 255))
+
+        # send the image to the user
+        stream = io.BytesIO()
+        image.save(stream, format='JPEG')
+        stream.seek(0)
+        return stream

@@ -32,5 +32,5 @@ def get_data_dict_as_message(selected_league: str, action: str, gameweek_number:
     for item in data_dict.keys():
         data_dict_message += f'\n{item} - {data_dict[item]}'
 
-    data_dict_message += f'\n\n🦁⚽🏆'
+    data_dict_message += '\n\n🦁⚽🏆'
     return data_dict_message
