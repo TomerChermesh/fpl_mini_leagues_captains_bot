@@ -9,9 +9,20 @@ START: Final[str] = 'Start'
 ACTION_SELECTION: Final[str] = 'Action Selection'
 GAMEWEEK_SELECTION: Final[str] = 'Gameweek Selection'
 LEAGUE_SELECTION: Final[str] = 'League Selection'
-MAIN_ACTIONS: Final[list[str]] = ['Get Captains', 'Get Chips', 'Get Gameweek Winners']
+GET_CAPTAINS: Final[str] = 'Get Captains'
+GET_CAPTAINS_WITH_VICES: Final[str] = 'Get Captains (with Vices)'
+GET_CHIPS: Final[str] = 'Get Chips'
+GET_GW_WINNERS: Final[str] = 'Get Gameweek Winners'
+MAIN_ACTIONS: Final[list[str]] = [GET_CAPTAINS, GET_CAPTAINS_WITH_VICES, GET_CHIPS, GET_GW_WINNERS]
 
 MENUS: Final[list[str]] = [ACTION_SELECTION, GAMEWEEK_SELECTION, LEAGUE_SELECTION]
+
+
+def get_translated_action(action: str) -> str:
+    if action == GET_CAPTAINS_WITH_VICES:
+        action = action.replace('(', '').replace(')', '')
+
+    return action.lower().replace(' ', '_')
 
 
 def get_menus_with_exit() -> list[str]:

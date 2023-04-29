@@ -4,7 +4,7 @@ from telegram import Update, ReplyKeyboardMarkup, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 
 from config import get_config
-from src.buttons_generator import create_buttons_list
+from src.utils.buttons_generator import create_buttons_list
 from src.constants import actions
 from src.fpl.fpl_main import FPLMain
 from src.utils import messages
@@ -52,6 +52,8 @@ class Bot:
     def run(self):
         print('Bot is now running...')
         self.updater.start_polling()
+
+
 
     def message_handler(self, update: Update, context: CallbackContext) -> None:
         answer: str = update.message.text
@@ -127,10 +129,10 @@ class Bot:
                                                                   resize_keyboard=True))
 
     def do_action(self, update: Update, context: CallbackContext, action: str):
-        action_lower: str = action.lower()
+        translated_action = actions.get_translated_action(action)
         data_dict: dict[str, Union[str, int]] = self.fpl.get_league_data_by_function(self.selected_league,
                                                                                      self.selected_gameweek,
-                                                                                     action_lower)
+                                                                                     translated_action)
         reply_text: str = messages.get_data_dict_as_message(self.selected_league, action,
                                                             self.selected_gameweek, data_dict)
 

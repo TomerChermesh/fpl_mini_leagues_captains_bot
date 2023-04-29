@@ -23,8 +23,7 @@ class FPLMain:
 
     def get_league_data_by_function(self, league_name: str, selected_gameweek: str,
                                     action: str) -> dict[str, Union[str, int]]:
-        action_subject: str = action.replace(' ', '_')
         gameweek_number: int = int(selected_gameweek[2:])
-        action_to_do = getattr(self.fpl_functions, action_subject)
+        action_to_do = getattr(self.fpl_functions, action)
         data_dict: dict[str, Union[str, int]] = action_to_do(league_name, gameweek_number)
         return data_dict
