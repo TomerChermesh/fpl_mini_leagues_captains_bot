@@ -12,6 +12,7 @@ class FPLFunctions:
     logged_in_user: FPLUser
     elements: dict
     captains: dict[str, int]
+    vice_captains: dict[str, int]
     chips: dict[str, int]
     scores: dict[str, int]
     user_leagues_dict: dict
@@ -30,6 +31,7 @@ class FPLFunctions:
                     cls._instance.data = json.load(page)
                     cls._instance.elements = cls._instance.data["elements"]
                     cls._instance.captains = {}
+                    cls._instance.vice_captains = {}
                     cls._instance.chips = {}
                     cls._instance.logged_in_user = None
                     cls._instance.user_leagues_dict = {}
@@ -72,12 +74,39 @@ class FPLFunctions:
         page = request.urlopen(url)
         return json.load(page)
 
-    def get_player(self, player_id) -> dict[str, Any]:
+    def get_player(self, player_id: int) -> dict[str, Any]:
         for player in self.elements:
             if player["id"] == player_id:
                 return player
 
+    def get_player_name(self, player_id: int) -> str:
+        player = self.get_player(player_id)
+        player_name = self.get_player_last_name(player)
+
+        if player_name[0].islower():
+            player_name = self.get_player_first_name(player)
+
+        return player_name
+
     def get_fpl_team_captain(self, team_id: int, gw_number: int) -> str:
+        gw_team_data = {}
+        captain_name: str = ''
+
+        gw_team_data.update(self.get_fpl_team_picks_by_gw(team_id, gw_number))
+
+        for player_picked in gw_team_data["picks"]:
+            player_id = player_picked["element"]
+            is_captain = player_picked["is_captain"]
+            multiplier = player_picked['multiplier']
+
+            if is_captain:
+                captain_name = self.get_player_name(player_id)
+                if multiplier == 3:
+                    captain_name += ' (Triple)'
+
+        return captain_name
+
+    def get_fpl_team_vice_captain(self, team_id: int, gw_number: int) -> str:
         gw_team_data = {}
         captain_name: str = ''
         vice_captain_name: str = ''
@@ -89,25 +118,17 @@ class FPLFunctions:
             is_captain = player_picked["is_captain"]
             is_vice_captain = player_picked["is_vice_captain"]
             multiplier = player_picked['multiplier']
-            player = self.get_player(player_id)
-            player_name = self.get_player_last_name(player)
-
-            if player_name[0].islower():
-                player_name = self.get_player_first_name(player)
 
             if is_captain:
-                captain_name = player_name
+                captain_name = self.get_player_name(player_id)
                 if multiplier == 3:
                     captain_name += ' (Triple)'
             elif is_vice_captain:
-                vice_captain_name = player_name
+                vice_captain_name = self.get_player_name(player_id)
 
-        if captain_name == '':
-            captain_name = vice_captain_name
-            if vice_captain_name == '':
-                captain_name = 'No Captain'
+        full_vice_captain_record: str = f'{captain_name} ({vice_captain_name})'
 
-        return captain_name
+        return full_vice_captain_record
 
     def get_captains(self, league_name: str, gw_number: int) -> dict[str, Union[str, int]]:
         self.captains = {}
@@ -120,6 +141,19 @@ class FPLFunctions:
 
         sorted_captains: dict[str, int] = dict(sorted(self.captains.items(), key=lambda item: item[1], reverse=True))
         return sorted_captains
+
+    def get_captains_with_vices(self, league_name: str, gw_number: int) -> dict[str, Union[str, int]]:
+        self.vice_captains = {}
+        league_id: int = [league['id'] for league in self.user_leagues_dict if league['name'] == league_name][0]
+        data = self.get_league(league_id)
+
+        for team in data["standings"]["results"]:
+            vice_captain = self.get_fpl_team_vice_captain(team["entry"], gw_number)
+            self.count_vice_captain(vice_captain)
+
+        sorted_vice_captains: dict[str, int] = dict(sorted(self.vice_captains.items(), key=lambda item: item[1],
+                                                      reverse=True))
+        return sorted_vice_captains
 
     def get_chips(self, league_name: str, gw_number: int) -> dict[str, Union[str, int]]:
         self.chips = {}
@@ -157,6 +191,12 @@ class FPLFunctions:
             self.captains[captain] = 1
         else:
             self.captains[captain] += 1
+
+    def count_vice_captain(self, vice_captain: str) -> None:
+        if vice_captain not in self.vice_captains:
+            self.vice_captains[vice_captain] = 1
+        else:
+            self.vice_captains[vice_captain] += 1
 
     def count_chips(self, chip: str) -> None:
         if chip not in self.chips:
