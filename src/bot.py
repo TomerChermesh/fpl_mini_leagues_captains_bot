@@ -23,10 +23,24 @@ class Bot:
         self.dispatcher = self.updater.dispatcher
         self.fpl: FPLMain = FPLMain()
         self.relevant_gameweeks: list[str] = []
+        self.dispatcher.add_handler(CommandHandler("about", self.about_command))
+        self.dispatcher.add_handler(CommandHandler("help", self.help_command))
         self.dispatcher.add_handler(CommandHandler("start", self.start_command))
         self.dispatcher.add_handler(MessageHandler(Filters.text, self.message_handler))
         self.last_message: str = ''
         self.last_buttons: list[list[str]] = []
+
+    @staticmethod
+    def about_command(update: Update, context: CallbackContext):
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=messages.get_about_message(),
+                                 parse_mode=ParseMode.MARKDOWN)
+
+    @staticmethod
+    def help_command(update: Update, context: CallbackContext):
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=messages.get_help_message(),
+                                 parse_mode=ParseMode.MARKDOWN)
 
     @staticmethod
     def start_command(update: Update, context: CallbackContext):
