@@ -2,8 +2,6 @@ import json
 from typing import Any
 from urllib import request
 
-import numpy as np
-
 from src.utils.custom_exceptions import InvalidUserID
 
 
@@ -11,12 +9,12 @@ class FPLUser:
     def __init__(self, manager_id):
         self.team_name: str = ''
         self.fullname: str = ''
-        self.overall_pts: int = np.nan
-        self.overall_rank: int = np.nan
+        self.overall_pts: int = 0
+        self.overall_rank: int = 0
         self.leagues: dict[str, Any] = {}
-        self.current_gameweek: int = np.nan
-        self.current_gameweek_points: int = np.nan
-        self.current_gameweek_rank: int = np.nan
+        self.current_gameweek: int = 0
+        self.current_gameweek_points: int = 0
+        self.current_gameweek_rank: int = 0
         try:
             self.login(manager_id)
         except Exception:
