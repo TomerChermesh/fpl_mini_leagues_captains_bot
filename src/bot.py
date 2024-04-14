@@ -67,8 +67,6 @@ class Bot:
         print('Bot is now running...')
         self.updater.start_polling()
 
-
-
     def message_handler(self, update: Update, context: CallbackContext) -> None:
         answer: str = update.message.text
         if answer.isnumeric():
