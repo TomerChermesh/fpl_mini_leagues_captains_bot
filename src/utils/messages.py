@@ -11,7 +11,7 @@ START_COMMAND: Final[str] = f"/start -> Start using {FPL_MINI_LEAGUES_BOT}"
 HELP_COMMAND: Final[str] = "/help -> This message"
 ABOUT_COMMAND: Final[str] = f"/about -> Read about {FPL_MINI_LEAGUES_BOT}"
 
-ENTER_TEAM_ID: Final[str] = "Now, please enter you FPL team ID 🙏🏼"
+ENTER_TEAM_ID: Final[str] = "Now, please enter your FPL team ID 🙏🏼"
 GOODBYE: Final[str] = "Thank you! Hope to see you next time 👋🏼"
 INVALID_ANSWER: Final[str] = "Invalid answer 😣"
 RETURN_TO_MENUS: Final[str] = "Please select a menu to return to or exit 🙏🏼"
