@@ -11,7 +11,7 @@ START_COMMAND: Final[str] = f"/start -> Start using {FPL_MINI_LEAGUES_BOT}"
 HELP_COMMAND: Final[str] = "/help -> This message"
 ABOUT_COMMAND: Final[str] = f"/about -> Read about {FPL_MINI_LEAGUES_BOT}"
 
-ENTER_TEAM_ID: Final[str] = "Now, please enter your FPL team ID 🙏🏼"
+ENTER_TEAM_ID: Final[str] = "Please enter your FPL team ID 🙏🏼"
 GOODBYE: Final[str] = "Thank you! Hope to see you next time 👋🏼"
 INVALID_ANSWER: Final[str] = "Invalid answer 😣"
 RETURN_TO_MENUS: Final[str] = "Please select a menu to return to or exit 🙏🏼"
@@ -35,7 +35,11 @@ def get_help_message() -> str:
 
 
 def get_start_message() -> str:
-    return f'{HELLO}\n\n{DESCRIPTION}\n\n{ENTER_TEAM_ID}'
+    return f'{HELLO}\n\n{DESCRIPTION}'
+
+
+def get_first_after_start_message() -> str:
+    return ENTER_TEAM_ID
 
 
 def get_after_login_message(user_name: str) -> str:
