@@ -4,10 +4,10 @@ from telegram import Update, ReplyKeyboardMarkup, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 
 from config import get_config
-from src.utils.buttons_generator import create_buttons_list
 from src.constants import actions
 from src.fpl.fpl_main import FPLMain
 from src.utils import messages
+from src.utils.buttons_generator import create_buttons_list
 from src.utils.custom_exceptions import InvalidUserID
 
 
